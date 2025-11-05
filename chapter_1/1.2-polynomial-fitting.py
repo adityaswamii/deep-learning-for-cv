@@ -102,6 +102,7 @@ def E(w):
 
 # custom minimization of the error function to find optimal weights
 def minimize_error_function(M):
+    """Minimize the error function E to find optimal weights w* for polynomial of degree M."""
     A = np.zeros((M + 1, M + 1))
     b = np.zeros(M + 1)
     for i in range(M + 1):
@@ -110,6 +111,22 @@ def minimize_error_function(M):
         b[i] = np.sum(t_n * (x_n ** i))
     w_star = np.linalg.solve(A, b)
     return w_star
+
+# using custom gradient descent function
+def gradE(w):
+    """Compute gradient of the error function E with respect to weights w."""
+    grad = np.zeros_like(w)
+    for i in range(len(w)):
+        grad[i] = np.sum((y(x_n, w) - t_n) * (x_n ** i))
+    return grad
+
+def gradient_descent(M, eta=10, steps=1000):
+    """Perform gradient descent to minimize the error function E."""
+    w = np.zeros(M + 1)  # initial guess for weights
+    for step in range(steps):
+        gradient = gradE(w)
+        w -= eta * gradient
+    return w
 
 
 # finding w*
@@ -120,6 +137,7 @@ for i, M in enumerate(M_range):
     # w_0 = np.zeros(M + 1)  # initial guess for weights, matrix of zeros
     # result = minimize(E, w_0)  # minimize error function
     # w_star = result.x
+    # w_star = gradient_descent(M)
     w_star = minimize_error_function(M)
     print(f'Optimal weights for degree {M}: {w_star}')
     # plotting the fitted polynomial
@@ -165,6 +183,7 @@ for M in M_test_range:
     # result = minimize(E, w_0)  # minimize error function
     # w_star = result.x
     w_star = minimize_error_function(M)
+    # w_star = gradient_descent(M)
     E_train.append(E_rms(w_star, x_n, t_n))
     E_test.append(E_rms(w_star, x_n_test, t_n_test))
 # plotting RMS errors
@@ -182,7 +201,7 @@ plt.show()
 plt.close()
 
 # showing how overfitting decreases with larger datasets at M=9
-N_values = [100, 15]
+N_values = [15, 100]
 plt.figure(figsize=(10, 5))
 for j, N in enumerate(N_values):
     print(f'Generating data and fitting polynomial of degree 9 for N={N}')
@@ -192,6 +211,7 @@ for j, N in enumerate(N_values):
     # result = minimize(E, w_0, method='BFGS')  # minimize error function
     # w_star = result.x
     w_star = minimize_error_function(M=9)
+    # w_star = gradient_descent(M=9)
     x_grid = np.linspace(0, 1, 200)
     y_grid = y(x_grid, w_star)
     plt.subplot(1, 2, j + 1)
@@ -216,7 +236,7 @@ for M in M_range:
     # w_0 = np.zeros(M + 1)  # initial guess for weights
     # result = minimize(E, w_0)  # minimize error function
     # w_star = result.x
-    w_star = minimize_error_function(M)
+    w_star = gradient_descent(M)
     print(f'Degree {M}: {w_star}')
 
 # Regularization adds a penalty term to the error function to discourage large weights, aka shrinkage methods/weight decay.
@@ -225,23 +245,54 @@ def E_reg(w, lam):
     """Compute regularized error function."""
     return E(w) + (lam / 2) * np.sum(w ** 2)
 
+def gradE_reg(w, lam):
+    """Compute gradient of the regularized error function."""
+    grad = gradE(w)
+    grad += lam * w # adding regularization term
+    return grad
+
+def gradient_descent_reg(M, lam, eta=0.1, steps=100):
+    """Perform gradient descent to minimize the regularized error function E_reg."""
+    w = np.zeros(M + 1)  # initial guess for weights
+    for step in range(steps):
+        gradient = gradE_reg(w, lam)
+        w -= eta * gradient
+    return w
+
+def minimize_error_function_reg(M, lam):
+    """Minimize the regularized error function E_reg to find optimal weights w* for polynomial of degree M."""
+    A = np.zeros((M + 1, M + 1))
+    b = np.zeros(M + 1)
+    for i in range(M + 1):
+        for j in range(M + 1):
+            A[i, j] = np.sum(x_n ** (i + j))
+        A[i, i] += lam  # adding regularization term
+        b[i] = np.sum(t_n * (x_n ** i))
+    w_star = np.linalg.solve(A, b)
+    return w_star
+
 # Plotting M=9 polynomial with different lambda values for regularization
-lam_values = [-18, -10, -5, 0]  # log lambda values
+N=10
+x_n = np.linspace(0, 1, N)
+t_n = np.sin(2 * np.pi * x_n) + np.random.normal(0, 0.1, N)
+lam_values = [np.exp(-30), np.exp(-10), np.exp(0), np.exp(1)]  # lambda values
 plt.figure(figsize=(10, 6))
 print(f"x_n: {x_n}")
 for i, lam in enumerate(lam_values):
-    print(f'Fitting polynomial (M=9) using regularized error with λ={lam} and lambda={lam}')
-    w_0 = np.zeros(10)  # initial guess for weights for M=9
-    result = minimize(E_reg, w_0, args=(lam,))  # minimize regularized error function
-    w_star = result.x
-    print(f'Optimal weights for λ={lam}: {w_star}')
+    print(f'Fitting polynomial (M=9) using regularized error with λ = {lam}')
+    # w_0 = np.zeros(10)  # initial guess for weights for M=9
+    # result = minimize(E_reg, w_0, args=(lam,))  # minimize regularized error function
+    # w_star = result.x
+    w_star = minimize_error_function_reg(M=9, lam=lam)
+    # w_star = gradient_descent_reg(M=9, lam=lam)
+    print(f'Optimal weights for λ = {lam}: {w_star}')
     x_grid = np.linspace(0, 1, 200)
     y_grid = y(x_grid, w_star)
     plt.subplot(2, 2, i + 1)
     plt.scatter(x_n, t_n, color='blue', label='Data')
     plt.plot(x_grid, y_grid, color='red', label='Fitted polynomial')
     plt.plot(x_grid, np.sin(2 * np.pi * x_grid), color='green', label='True function')
-    plt.title(f' λ={lam}')
+    plt.title(f' λ = {lam}')
     plt.legend()
 plt.suptitle('M=9 Polynomials with Regularized Error Function (1.2.5)')
 print('1.2.5 plotted regularized polynomial fits')
@@ -258,9 +309,11 @@ ln_lam_range = np.linspace(-30, 0, 50)  # range of ln lambda values
 for ln_lam in ln_lam_range:
     lam = np.exp(ln_lam)
     print(f'Calculating RMS error for ln λ = {ln_lam}')
-    w_0 = np.zeros(10)  # initial guess for weights for M=9
-    result = minimize(E_reg, w_0, args=(lam,))  # minimize regularized error function
-    w_star = result.x
+    # w_0 = np.zeros(10)  # initial guess for weights for M=9
+    # result = minimize(E_reg, w_0, args=(lam,))  # minimize regularized error function
+    # w_star = result.x
+    w_star = minimize_error_function_reg(M=9, lam=lam)
+    # w_star = gradient_descent_reg(M=9, lam=lam)
     E_train_reg.append(E_rms(w_star, x_n, t_n))
     E_test_reg.append(E_rms(w_star, x_n_test, t_n_test))
 # plotting RMS errors
@@ -330,9 +383,11 @@ E_val = []
 for M in M_test_range:
     for ln_lam in ln_lam_range:
         lam = np.exp(ln_lam)
-        w_0 = np.zeros(M + 1)  # initial guess for weights
-        result = minimize(E_reg, w_0, args=(lam,))  # minimize regularized error function
-        w_star = result.x
+        # w_0 = np.zeros(M + 1)  # initial guess for weights
+        # result = minimize(E_reg, w_0, args=(lam,))  # minimize regularized error function
+        # w_star = result.x
+        w_star = minimize_error_function_reg(M, lam)
+        # w_star = gradient_descent_reg(M, lam)
         E_val.append(E_rms(w_star, x_n_val, t_n_val))
         print(f'RMS error for degree {M} with ln λ = {ln_lam} on validation set: {E_val[-1]}')
 # plotting RMS errors
