@@ -23,7 +23,10 @@ plt.ylabel('$t_n$')
 plt.title('Synthetic Data (1.2.1)')
 plt.legend()
 print('1.2.1 plotted')
+plt.savefig('figures/1.2.1_synthetic_data.png', dpi=150, bbox_inches='tight')
+print('Saved figure to figures/1.2.1_synthetic_data.png')
 plt.show()
+plt.close()
 
 
 # 1.2.2) Linear model
@@ -50,7 +53,10 @@ for i, M in enumerate(M_range):
     plt.legend()
 plt.suptitle('Polynomial Fits (1.2.2) using inbuilt libraries')
 print('1.2.2 plotted using inbuilt libraries')
+plt.savefig('figures/1.2.2_polyfits_inbuilt.png', dpi=150, bbox_inches='tight')
+print('Saved figure to figures/1.2.2_polyfits_inbuilt.png')
 plt.show()
+plt.close()
 
 # Using custom function to evaluate polynomials
 
@@ -75,7 +81,10 @@ for i, M in enumerate(M_range):
     plt.legend()
 plt.suptitle('Polynomial Fits (1.2.2) using custom evaluation function with dummy weights')
 print('1.2.2 plotted using custom function with dummy weights')
+plt.savefig('figures/1.2.2_custom_dummy_weights.png', dpi=150, bbox_inches='tight')
+print('Saved figure to figures/1.2.2_custom_dummy_weights.png')
 plt.show()
+plt.close()
 
 
 # 1.2.3) Error function
@@ -91,14 +100,27 @@ def E(w):
 
 # Because the error function is a quadratic function of the coefficients w, its derivatives with respect to the coefficients will be linear in the elements of w, and so the minimization of the error function has a unique solution, denoted by w*. The resulting polynomial is given by the function y(x, w*).
 
+# custom minimization of the error function to find optimal weights
+def minimize_error_function(M):
+    A = np.zeros((M + 1, M + 1))
+    b = np.zeros(M + 1)
+    for i in range(M + 1):
+        for j in range(M + 1):
+            A[i, j] = np.sum(x_n ** (i + j))
+        b[i] = np.sum(t_n * (x_n ** i))
+    w_star = np.linalg.solve(A, b)
+    return w_star
+
+
 # finding w*
 from scipy.optimize import minimize
 plt.figure(figsize=(10, 6)) 
 for i, M in enumerate(M_range):
     print(f'Finding optimal weights for polynomial of degree {M}')
-    w_0 = np.zeros(M + 1)  # initial guess for weights, matrix of zeros
-    result = minimize(E, w_0)  # minimize error function
-    w_star = result.x
+    # w_0 = np.zeros(M + 1)  # initial guess for weights, matrix of zeros
+    # result = minimize(E, w_0)  # minimize error function
+    # w_star = result.x
+    w_star = minimize_error_function(M)
     print(f'Optimal weights for degree {M}: {w_star}')
     # plotting the fitted polynomial
     x_grid = np.linspace(0, 1, 200)
@@ -110,7 +132,10 @@ for i, M in enumerate(M_range):
     plt.legend()
 plt.suptitle('Polynomial Fits (1.2.3) using custom error minimization')
 print('1.2.3 plotted with custom error minimization')
-plt.show()  
+plt.savefig('figures/1.2.3_custom_error_minimization.png', dpi=150, bbox_inches='tight')
+print('Saved figure to figures/1.2.3_custom_error_minimization.png')
+plt.show()
+plt.close()
 
 
 # 1.2.4) Model complexity 
@@ -136,9 +161,10 @@ M_test_range = range(0, 10)  # polynomial degrees from 0 to 9
 # calculating RMS errors for training and test data
 for M in M_test_range:
     print(f'Calculating RMS error for polynomial of degree {M}')
-    w_0 = np.zeros(M + 1)  # initial guess for weights
-    result = minimize(E, w_0)  # minimize error function
-    w_star = result.x
+    # w_0 = np.zeros(M + 1)  # initial guess for weights
+    # result = minimize(E, w_0)  # minimize error function
+    # w_star = result.x
+    w_star = minimize_error_function(M)
     E_train.append(E_rms(w_star, x_n, t_n))
     E_test.append(E_rms(w_star, x_n_test, t_n_test))
 # plotting RMS errors
@@ -150,7 +176,10 @@ plt.ylabel('RMS Error')
 plt.legend()
 plt.title('Training and Test RMS Errors vs Polynomial Degree')
 print('1.2.4 plotted training and test RMS errors vs polynomial degree')
+plt.savefig('figures/1.2.4_rms_errors_train_test.png', dpi=150, bbox_inches='tight')
+print('Saved figure to figures/1.2.4_rms_errors_train_test.png')
 plt.show()
+plt.close()
 
 # showing how overfitting decreases with larger datasets at M=9
 N_values = [100, 15]
@@ -159,9 +188,10 @@ for j, N in enumerate(N_values):
     print(f'Generating data and fitting polynomial of degree 9 for N={N}')
     x_n = np.linspace(0, 1, N)
     t_n = np.sin(2 * np.pi * x_n) + np.random.normal(0, 0.1, N)
-    w_0 = np.zeros(10)  # initial guess for weights for M=9
-    result = minimize(E, w_0, method='BFGS')  # minimize error function
-    w_star = result.x
+    # w_0 = np.zeros(10)  # initial guess for weights for M=9
+    # result = minimize(E, w_0, method='BFGS')  # minimize error function
+    # w_star = result.x
+    w_star = minimize_error_function(M=9)
     x_grid = np.linspace(0, 1, 200)
     y_grid = y(x_grid, w_star)
     plt.subplot(1, 2, j + 1)
@@ -172,7 +202,10 @@ for j, N in enumerate(N_values):
     plt.title(f'Polynomial Degree 9 with N={N}')
 plt.suptitle('Effect of Dataset Size on Overfitting (1.2.4)')
 print('1.2.4 plotted effect of dataset size on overfitting')
+plt.savefig('figures/1.2.4_overfitting_dataset_size.png', dpi=150, bbox_inches='tight')
+print('Saved figure to figures/1.2.4_overfitting_dataset_size.png')
 plt.show()
+plt.close()
 
 
 # 1.2.5) Regularization
@@ -180,9 +213,10 @@ plt.show()
 # printing the weights at each order without regularization
 print("Weights without regularization:")
 for M in M_range:
-    w_0 = np.zeros(M + 1)  # initial guess for weights
-    result = minimize(E, w_0)  # minimize error function
-    w_star = result.x
+    # w_0 = np.zeros(M + 1)  # initial guess for weights
+    # result = minimize(E, w_0)  # minimize error function
+    # w_star = result.x
+    w_star = minimize_error_function(M)
     print(f'Degree {M}: {w_star}')
 
 # Regularization adds a penalty term to the error function to discourage large weights, aka shrinkage methods/weight decay.
@@ -211,7 +245,10 @@ for i, lam in enumerate(lam_values):
     plt.legend()
 plt.suptitle('M=9 Polynomials with Regularized Error Function (1.2.5)')
 print('1.2.5 plotted regularized polynomial fits')
+plt.savefig('figures/1.2.5_regularized_fits.png', dpi=150, bbox_inches='tight')
+print('Saved figure to figures/1.2.5_regularized_fits.png')
 plt.show()
+plt.close()
 
 # Graph of the root-meansquare error versus ln λ for the M = 9 polynomial for training and test sets.
 
@@ -235,7 +272,10 @@ plt.ylabel('RMS Error')
 plt.legend()
 plt.title('Training and Test RMS Errors vs ln λ for M=9 Polynomial')
 print('1.2.5 plotted training and test RMS errors vs ln λ for M=9 polynomial')
+plt.savefig('figures/1.2.5_rms_vs_ln_lambda.png', dpi=150, bbox_inches='tight')
+print('Saved figure to figures/1.2.5_rms_vs_ln_lambda.png')
 plt.show()
+plt.close()
 
 # using inbuilt libraries for the above instead of the custom functions
 
@@ -266,7 +306,10 @@ plt.ylabel('RMS Error')
 plt.legend()
 plt.title('Training and Test RMS Errors vs ln λ for M=9 Polynomial (sklearn)')
 print('1.2.5 plotted training and test RMS errors vs ln λ for M=9 polynomial using sklearn')
+plt.savefig('figures/1.2.5_sklearn_rms_vs_ln_lambda.png', dpi=150, bbox_inches='tight')
+print('Saved figure to figures/1.2.5_sklearn_rms_vs_ln_lambda.png')
 plt.show()
+plt.close()
 
 
 # 1.2.6) Model selection
@@ -302,4 +345,7 @@ plt.ylabel('RMS Error on Validation Set')
 plt.legend()
 plt.title('Validation RMS Errors vs ln λ for Different Polynomial Degrees')
 print('1.2.6 plotted validation RMS errors vs ln λ for different polynomial degrees')
+plt.savefig('figures/1.2.6_validation_rms_vs_ln_lambda.png', dpi=150, bbox_inches='tight')
+print('Saved figure to figures/1.2.6_validation_rms_vs_ln_lambda.png')
 plt.show()
+plt.close()
