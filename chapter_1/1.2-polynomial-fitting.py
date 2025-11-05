@@ -2,6 +2,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
 np.random.seed(999)
+# seed 42 gave worse plots with train error > test error. for order=1 or 2, train error > test error.
+# seed 999 gives good plots, but regularization error plots don't spike for ln lambda < -25 like in textbook. for order = 1 or 2, train error > test error.
+# seed 3 gives alright plots, train error < test error for all orders, but train error is greater for some ln lambda values when looking at regularization plots.
+# seed 35 best seed after 999, but error does not spike as high as expected for M=9. same issue for ln lambda < -25.
+# seed 6 doesn't have high error for M=9 but shows slight error increase for ln lambda < -25.
+# seed 70 has high error for M=9, but train error > test error for M=1,2 and some ln lambda values.
+# seeds 352, 824, 80, 200, 666, 700 not ideal
+
+
+
 
 
 # 1.2.1) Synthetic data
