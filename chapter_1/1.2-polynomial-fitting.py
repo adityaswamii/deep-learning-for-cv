@@ -102,7 +102,7 @@ plt.close()
 # Previously used inbuilt function np.polyfit to fit polynomials.
 # Now defining an error function to quantify the fit quality, so we can find the best weights ourselves.
 
-def E(w):
+def E(w, x_n, t_n):
     """Compute sum of squares of displacements of each data point from the function y."""
     return 0.5 * np.sum((y(x_n,w) - t_n) ** 2)
 
@@ -111,7 +111,7 @@ def E(w):
 # Because the error function is a quadratic function of the coefficients w, its derivatives with respect to the coefficients will be linear in the elements of w, and so the minimization of the error function has a unique solution, denoted by w*. The resulting polynomial is given by the function y(x, w*).
 
 # custom minimization of the error function to find optimal weights
-def minimize_error_function(M):
+def minimize_error_function(M, x_n, t_n):
     """Minimize the error function E to find optimal weights w* for polynomial of degree M."""
     A = np.zeros((M + 1, M + 1))
     b = np.zeros(M + 1)
@@ -123,18 +123,18 @@ def minimize_error_function(M):
     return w_star
 
 # using custom gradient descent function
-def gradE(w):
+def gradE(w, x_n, t_n):
     """Compute gradient of the error function E with respect to weights w."""
     grad = np.zeros_like(w)
     for i in range(len(w)):
         grad[i] = np.sum((y(x_n, w) - t_n) * (x_n ** i))
     return grad
 
-def gradient_descent(M, eta=10, steps=1000):
+def gradient_descent(M, x_n, t_n, eta=0.001, steps=1000):
     """Perform gradient descent to minimize the error function E."""
     w = np.zeros(M + 1)  # initial guess for weights
     for step in range(steps):
-        gradient = gradE(w)
+        gradient = gradE(w, x_n, t_n)
         w -= eta * gradient
     return w
 
@@ -148,7 +148,7 @@ for i, M in enumerate(M_range):
     # result = minimize(E, w_0)  # minimize error function
     # w_star = result.x
     # w_star = gradient_descent(M)
-    w_star = minimize_error_function(M)
+    w_star = minimize_error_function(M, x_n, t_n)
     print(f'Optimal weights for degree {M}: {w_star}')
     # plotting the fitted polynomial
     x_grid = np.linspace(0, 1, 200)
@@ -175,7 +175,7 @@ plt.close()
 N_test = 200
 x_n_test = np.linspace(0, 1, N_test)
 t_n_test = np.sin(2 * np.pi * x_n_test)
-t_n_test += np.random.normal(0, 0.1, N_test)
+t_n_test += np.random.normal(0, 0.25, N_test)
 E_train = []
 E_test = []
 
@@ -192,7 +192,7 @@ for M in M_test_range:
     # w_0 = np.zeros(M + 1)  # initial guess for weights
     # result = minimize(E, w_0)  # minimize error function
     # w_star = result.x
-    w_star = minimize_error_function(M)
+    w_star = minimize_error_function(M, x_n, t_n)
     # w_star = gradient_descent(M)
     E_train.append(E_rms(w_star, x_n, t_n))
     E_test.append(E_rms(w_star, x_n_test, t_n_test))
@@ -215,17 +215,17 @@ N_values = [15, 100]
 plt.figure(figsize=(10, 5))
 for j, N in enumerate(N_values):
     print(f'Generating data and fitting polynomial of degree 9 for N={N}')
-    x_n = np.linspace(0, 1, N)
-    t_n = np.sin(2 * np.pi * x_n) + np.random.normal(0, 0.1, N)
+    x_n_large = np.linspace(0, 1, N)
+    t_n_large = np.sin(2 * np.pi * x_n_large) + np.random.normal(0, 0.1, N)
     # w_0 = np.zeros(10)  # initial guess for weights for M=9
     # result = minimize(E, w_0, method='BFGS')  # minimize error function
     # w_star = result.x
-    w_star = minimize_error_function(M=9)
+    w_star = minimize_error_function(M=9, x_n=x_n_large, t_n=t_n_large)
     # w_star = gradient_descent(M=9)
     x_grid = np.linspace(0, 1, 200)
     y_grid = y(x_grid, w_star)
     plt.subplot(1, 2, j + 1)
-    plt.scatter(x_n, t_n, color='blue', label='Data')
+    plt.scatter(x_n_large, t_n_large, color='blue', label='Data')
     plt.plot(x_grid, y_grid, color='red', label='Fitted polynomial')
     plt.plot(x_grid, np.sin(2 * np.pi * x_grid), color='green', label='True function')
     plt.legend()
@@ -246,54 +246,55 @@ for M in M_range:
     # w_0 = np.zeros(M + 1)  # initial guess for weights
     # result = minimize(E, w_0)  # minimize error function
     # w_star = result.x
-    w_star = gradient_descent(M)
+    w_star = minimize_error_function(M, x_n, t_n)
     print(f'Degree {M}: {w_star}')
 
 # Regularization adds a penalty term to the error function to discourage large weights, aka shrinkage methods/weight decay.
 
-def E_reg(w, lam):
+def E_reg(w, lam, x_n, t_n):
     """Compute regularized error function."""
-    return E(w) + (lam / 2) * np.sum(w ** 2)
+    return E(w, x_n, t_n) + (lam / 2) * np.sum(w ** 2)
 
-def gradE_reg(w, lam):
+def gradE_reg(w, lam, x_n, t_n):
     """Compute gradient of the regularized error function."""
-    grad = gradE(w)
+    grad = gradE(w, x_n, t_n)
     grad += lam * w # adding regularization term
     return grad
 
-def gradient_descent_reg(M, lam, eta=0.1, steps=100):
+def gradient_descent_reg(M, lam, x_n, t_n, eta=0.1, steps=100):
     """Perform gradient descent to minimize the regularized error function E_reg."""
     w = np.zeros(M + 1)  # initial guess for weights
     for step in range(steps):
-        gradient = gradE_reg(w, lam)
+        gradient = gradE_reg(w, lam, x_n, t_n)
         w -= eta * gradient
     return w
 
-def minimize_error_function_reg(M, lam):
+def minimize_error_function_reg(M, lam, x_n, t_n):
     """Minimize the regularized error function E_reg to find optimal weights w* for polynomial of degree M."""
-    A = np.zeros((M + 1, M + 1))
-    b = np.zeros(M + 1)
-    for i in range(M + 1):
-        for j in range(M + 1):
-            A[i, j] = np.sum(x_n ** (i + j))
-        A[i, i] += lam  # adding regularization term
-        b[i] = np.sum(t_n * (x_n ** i))
-    w_star = np.linalg.solve(A, b)
-    return w_star
+    if (lam == 0):
+        return minimize_error_function(M, x_n, t_n)
+    else:
+        A = np.zeros((M + 1, M + 1))
+        b = np.zeros(M + 1)
+        for i in range(M + 1):
+            for j in range(M + 1):
+                A[i, j] = np.sum(x_n ** (i + j))
+            A[i, i] += lam  # adding regularization term
+            b[i] = np.sum(t_n * (x_n ** i))
+        w_star = np.linalg.solve(A, b)
+        return w_star
 
 # Plotting M=9 polynomial with different lambda values for regularization
-N=10
-x_n = np.linspace(0, 1, N)
-t_n = np.sin(2 * np.pi * x_n) + np.random.normal(0, 0.1, N)
-lam_values = [np.exp(-30), np.exp(-10), np.exp(0), np.exp(1)]  # lambda values
-plt.figure(figsize=(10, 6))
 print(f"x_n: {x_n}")
+print(f"t_n: {t_n}")
+lam_values = [np.exp(-30), np.exp(-10), np.exp(0), 0]  # lambda values
+plt.figure(figsize=(10, 6))
 for i, lam in enumerate(lam_values):
     print(f'Fitting polynomial (M=9) using regularized error with λ = {lam}')
     # w_0 = np.zeros(10)  # initial guess for weights for M=9
     # result = minimize(E_reg, w_0, args=(lam,))  # minimize regularized error function
     # w_star = result.x
-    w_star = minimize_error_function_reg(M=9, lam=lam)
+    w_star = minimize_error_function_reg(M=9, lam=lam, x_n=x_n, t_n=t_n)
     # w_star = gradient_descent_reg(M=9, lam=lam)
     print(f'Optimal weights for λ = {lam}: {w_star}')
     x_grid = np.linspace(0, 1, 200)
@@ -322,7 +323,7 @@ for ln_lam in ln_lam_range:
     # w_0 = np.zeros(10)  # initial guess for weights for M=9
     # result = minimize(E_reg, w_0, args=(lam,))  # minimize regularized error function
     # w_star = result.x
-    w_star = minimize_error_function_reg(M=9, lam=lam)
+    w_star = minimize_error_function_reg(M=9, lam=lam, x_n=x_n, t_n=t_n)
     # w_star = gradient_descent_reg(M=9, lam=lam)
     E_train_reg.append(E_rms(w_star, x_n, t_n))
     E_test_reg.append(E_rms(w_star, x_n_test, t_n_test))
@@ -396,7 +397,7 @@ for M in M_test_range:
         # w_0 = np.zeros(M + 1)  # initial guess for weights
         # result = minimize(E_reg, w_0, args=(lam,))  # minimize regularized error function
         # w_star = result.x
-        w_star = minimize_error_function_reg(M, lam)
+        w_star = minimize_error_function_reg(M, lam, x_n_val, t_n_val)
         # w_star = gradient_descent_reg(M, lam)
         E_val.append(E_rms(w_star, x_n_val, t_n_val))
         print(f'RMS error for degree {M} with ln λ = {ln_lam} on validation set: {E_val[-1]}')
