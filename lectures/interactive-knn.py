@@ -51,7 +51,7 @@ def make_2d_data(n_samples=200, noise=0.2):
     X, y = make_moons(n_samples=n_samples, noise=noise, random_state=0)
     return X, y
 
-def plot_knn_decision_boundary(samples=200, noise=0.2, k=3, dist='l2'):
+def plot_knn_decision_boundary(samples=200, noise=0.2, k=5, dist='l2'):
     X, y = make_2d_data(n_samples=samples, noise=noise)
     knn = KNearestNeighbor(k=k, dist=dist)
     knn.train(X, y)
@@ -69,7 +69,7 @@ def plot_knn_decision_boundary(samples=200, noise=0.2, k=3, dist='l2'):
 
     # Plot
     fig, ax = plt.subplots(figsize=(7, 6))
-    ax.contourf(xx, yy, Z, cmap=plt.cm.coolwarm, alpha=0.4, picker=True)
+    ax.contourf(xx, yy, Z, cmap=plt.cm.coolwarm, alpha=0.4)
 
     sc = ax.scatter(X[:, 0], X[:, 1], c=y, cmap=plt.cm.coolwarm,
                     edgecolors='k', picker=True)
@@ -110,10 +110,12 @@ def plot_knn_decision_boundary(samples=200, noise=0.2, k=3, dist='l2'):
     plt.show()
     plt.close()
 
-interact(
-    plot_knn_decision_boundary,
-    samples=IntSlider(min=100, max=1000, step=100, value=200),
-    noise=FloatSlider(min=0, max=1, step=0.05, value=0.2),
-    k=IntSlider(min=1, max=15, step=1, value=3),
-    dist=Dropdown(options=['l2', 'l1'], value='l2')
-)
+plot_knn_decision_boundary()
+
+# interact(
+#     plot_knn_decision_boundary,
+#     samples=IntSlider(min=100, max=1000, step=100, value=200),
+#     noise=FloatSlider(min=0, max=1, step=0.05, value=0.2),
+#     k=IntSlider(min=1, max=15, step=1, value=3),
+#     dist=Dropdown(options=['l2', 'l1'], value='l2')
+# )
