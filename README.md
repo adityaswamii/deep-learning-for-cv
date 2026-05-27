@@ -10,9 +10,9 @@ The goal of this repository is not just to follow along — it is to implement c
 
 | Source | Focus |
 |---|---|
-| [Stanford CS231n](https://cs231n.stanford.edu/) | Computer vision pipeline, CNNs, practical deep learning |
-| Bishop — *Deep Learning* (2024) | Mathematical foundations, probabilistic framing |
-| Prof. Sandesh Kamath | Guided coursework, structured problem sets |
+| [Stanford CS231n](https://cs231n.stanford.edu/) | Computer vision pipeline, practical deep learning |
+| [Bishop — *Deep Learning* (2024)](https://www.bishopbook.com/) | Mathematical foundations |
+| Prof. Sandesh Kamath | Independent study supervisor |
 
 ---
 
@@ -21,10 +21,10 @@ The goal of this repository is not just to follow along — it is to implement c
 ```
 deep-learning-for-cv/
 │
-├── chapter_1/          # Image classification: kNN, linear classifiers, loss functions
-├── chapter_2/          # Neural networks: forward/backward pass, optimization
+├── chapter_1/          # Bishop's chapter on image classification: kNN, linear classifiers, loss functions
+├── chapter_2/          # Bishop's chapter on neural networks: forward/backward pass, optimization
 │
-├── lectures/           # Lecture-aligned notebooks and supporting code
+├── lectures/           # CS231n Lecture-aligned notebooks and supporting code
 │   └── data/           # Dataset loading scripts (data itself is gitignored)
 │
 ├── figures/            # Saved plots and visualizations
@@ -40,14 +40,20 @@ deep-learning-for-cv/
 
 | Topic | Status |
 |---|---|
+| Computer Vision Overview | ✅ |
 | Image Classification & the Data-Driven Approach | ✅ |
 | k-Nearest Neighbour Classifier | ✅ |
 | Linear Classification: SVM & Softmax | ✅ |
 | Optimization & Gradient Descent | ✅ |
 | Neural Networks: Architecture & Activations | ✅ |
 | Backpropagation & Computational Graphs | ✅ |
-| Training Neural Networks | 🔄 In progress |
-| Convolutional Neural Networks | 🔄 In progress |
+| Training Neural Networks | ✅ |
+| Convolutional Neural Networks | ✅ |
+| CNN Architectures | ✅ |
+| Recurrent Neural Networks | 🔄 In progress |
+| Attention & Transformers | 🔄 In progress |
+| Object Detection |  |
+| Self-Supervised Learning |  |
 
 ### Bishop — *Deep Learning*
 
@@ -55,8 +61,8 @@ deep-learning-for-cv/
 |---|---|---|
 | 1 | The Deep Learning Revolution | ✅ |
 | 2 | Probabilities | ✅ |
-| 3 | Standard Machine Learning | ✅ |
-| 4 | Single-Layer Networks | 🔄 In progress |
+| 12 | Transformers | 🔄 In progress |
+| 13 | Graph Neural Networks | 🔄 In progress |
 
 ---
 
