@@ -10,8 +10,8 @@ The goal of this repository is not just to follow along — it is to implement c
 
 | Source | Focus |
 |---|---|
-| [Stanford CS231n](https://cs231n.stanford.edu/) | Computer vision pipeline, CNNs, practical deep learning |
-| [Bishop — *Deep Learning* (2024)](https://www.bishopbook.com/) | Mathematical foundations, probabilistic framing |
+| [Stanford CS231n](https://cs231n.stanford.edu/) | Computer vision pipeline, practical deep learning |
+| [Bishop — *Deep Learning* (2024)](https://www.bishopbook.com/) | Mathematical foundations |
 | Prof. Sandesh Kamath | Independent study supervisor |
 
 ---
